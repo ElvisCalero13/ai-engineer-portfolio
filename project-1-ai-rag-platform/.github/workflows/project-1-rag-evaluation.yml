@@ -1,0 +1,59 @@
+name: project-1-rag-evaluation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "project-1-ai-rag-platform/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "project-1-ai-rag-platform/**"
+
+jobs:
+  rag-evaluation:
+    name: Run RAG evaluation
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: project-1-ai-rag-platform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start local stack
+        run: docker compose up -d --build
+
+      - name: Wait for API
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8000/health; then
+              echo "API is ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "API did not become ready"
+          docker compose logs
+          exit 1
+
+      - name: Install evaluation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r pipelines/evaluation/requirements.txt
+
+      - name: Run RAG evaluation
+        run: |
+          cd pipelines/evaluation
+          python evaluate_rag.py
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v
