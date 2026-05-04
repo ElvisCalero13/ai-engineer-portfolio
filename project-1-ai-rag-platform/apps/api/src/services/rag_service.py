@@ -106,3 +106,28 @@ class RagService:
             "answer": answer,
             "sources": sources,
         }
+    
+    def retrieve_context(self, question: str, limit: int = 5) -> dict:
+        query_vector = self.embedding_service.embed_text(question)
+
+        results = self.vector_store.search(
+            query_vector=query_vector,
+            limit=limit,
+        )
+
+        chunks = []
+
+        for result in results:
+            payload = result.payload or {}
+
+            chunks.append({
+                "score": result.score,
+                "filename": payload.get("filename", "unknown"),
+                "chunk_index": payload.get("chunk_index", "unknown"),
+                "text": payload.get("text", ""),
+            })
+
+        return {
+            "question": question,
+            "results": chunks,
+        }

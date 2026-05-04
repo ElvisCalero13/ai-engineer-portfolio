@@ -5,13 +5,22 @@ from src.config import settings
 
 class LlmService:
     def __init__(self):
-        if not settings.openai_api_key:
-            raise ValueError("OPENAI_API_KEY is required")
-
-        self.client = OpenAI(api_key=settings.openai_api_key)
-        self.model = "gpt-4o-mini"
+        self.provider = getattr(settings, "llm_provider", "local")
+        
+        if self.provider == "openai":
+            if not settings.openai_api_key:
+                raise ValueError("OPENAI_API_KEY is required")
+            
+            self.client = OpenAI(api_key=settings.openai_api_key)
+            self.model = "gpt-4o-mini"
 
     def generate_answer(self, question: str, context: str) -> str:
+        if self.provider == "openai":
+            return self._openai_generate(question, context)
+
+        return self._local_generate(question, context)
+
+    def _openai_generate(self, question: str, context: str) -> str:
         prompt = f"""
 You are an AI assistant for a RAG platform.
 
@@ -42,3 +51,10 @@ Question:
         )
 
         return response.choices[0].message.content
+    
+    def _local_generate(self, question: str, context: str) -> str:
+        # simple baseline (sin LLM externo)
+        if not context:
+            return "I don't have enough information in the uploaded documents to answer that."
+
+        return context[:500]
