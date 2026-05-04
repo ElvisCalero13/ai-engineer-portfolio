@@ -1,11 +1,11 @@
 import json
 import requests
+import os
 
 from metrics import keyword_recall, passed
 
-
-API_URL = "http://localhost:8000/chat"
-
+API_BASE_URL = os.getenv("API_URL", "http://localhost:8000")
+API_URL = f"{API_BASE_URL}/chat"
 
 def load_dataset(path: str = "eval_dataset.json"):
     with open(path, "r", encoding="utf-8") as file:
