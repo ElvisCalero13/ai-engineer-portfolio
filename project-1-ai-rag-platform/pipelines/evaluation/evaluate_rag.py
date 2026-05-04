@@ -4,8 +4,13 @@ import os
 
 from metrics import keyword_recall, passed
 
+EVAL_MODE = os.getenv("EVAL_MODE", "retrieval")  # retrieval | answer
 API_BASE_URL = os.getenv("API_URL", "http://localhost:8000")
-API_URL = f"{API_BASE_URL}/chat"
+
+if EVAL_MODE == "retrieval":
+    API_URL = f"{API_BASE_URL}/chat/retrieve"
+else:
+    API_URL = f"{API_BASE_URL}/chat"
 
 def load_dataset(path: str = "eval_dataset.json"):
     with open(path, "r", encoding="utf-8") as file:
@@ -13,9 +18,14 @@ def load_dataset(path: str = "eval_dataset.json"):
 
 
 def ask_rag(question: str) -> dict:
+    payload = {"question": question}
+
+    if EVAL_MODE == "retrieval":
+        payload["limit"] = 5
+
     response = requests.post(
         API_URL,
-        json={"question": question},
+        json=payload,
         timeout=180,
     )
     response.raise_for_status()
@@ -37,7 +47,10 @@ def main():
         expected_keywords = item["expected_keywords"]
 
         result = ask_rag(question)
-        answer = result["answer"]
+        if EVAL_MODE == "retrieval":
+            answer = " ".join([chunk["text"] for chunk in result["results"]])
+        else:
+            answer = result["answer"]
 
         score = keyword_recall(answer, expected_keywords)
         is_passed = passed(score)
@@ -54,6 +67,7 @@ def main():
 
     print("\nSummary")
     print("=" * 50)
+    print(f"Mode: {EVAL_MODE}")
     print(f"Total tests: {total}")
     print(f"Passed: {passed_count}")
     print(f"Pass rate: {pass_rate:.2%}")
