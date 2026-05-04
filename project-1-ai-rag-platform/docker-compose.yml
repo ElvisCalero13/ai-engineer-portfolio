@@ -7,9 +7,10 @@ services:
       - "8000:8000"
     environment:
       ENVIRONMENT: dev
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}
       QDRANT_URL: http://qdrant:6333
       QDRANT_COLLECTION: business_documents
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     depends_on:
       - qdrant
 
