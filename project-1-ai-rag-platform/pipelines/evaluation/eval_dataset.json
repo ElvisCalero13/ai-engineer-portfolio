@@ -1,0 +1,39 @@
+[
+  {
+    "question": "What are the pillars of the AWS Well-Architected Framework?",
+    "expected_keywords": [
+      "operational excellence",
+      "security",
+      "reliability",
+      "performance efficiency",
+      "cost optimization",
+      "sustainability"
+    ]
+  },
+  {
+    "question": "What does the Operational Excellence pillar focus on?",
+    "expected_keywords": [
+      "organizing",
+      "team",
+      "designing",
+      "workload",
+      "operating",
+      "scale",
+      "evolving",
+      "customer experience"
+    ]
+  },
+  {
+    "question": "What does the Reliability pillar focus on?",
+    "expected_keywords": [
+      "workload",
+      "correctly",
+      "consistently",
+      "expected",
+      "operate",
+      "test",
+      "lifecycle",
+      "reliable workloads"
+    ]
+  }
+]
