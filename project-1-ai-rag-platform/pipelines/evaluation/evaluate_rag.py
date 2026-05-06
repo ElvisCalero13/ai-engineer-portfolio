@@ -6,6 +6,7 @@ from metrics import keyword_recall, passed
 
 EVAL_MODE = os.getenv("EVAL_MODE", "retrieval")  # retrieval | answer
 API_BASE_URL = os.getenv("API_URL", "http://localhost:8000")
+TOP_K = int(os.getenv("TOP_K", "5"))
 
 if EVAL_MODE == "retrieval":
     API_URL = f"{API_BASE_URL}/chat/retrieve"
@@ -21,7 +22,9 @@ def ask_rag(question: str) -> dict:
     payload = {"question": question}
 
     if EVAL_MODE == "retrieval":
-        payload["limit"] = 5
+        payload["limit"] = TOP_K
+    else:
+        payload["top_k"] = TOP_K
 
     response = requests.post(
         API_URL,

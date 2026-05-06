@@ -18,6 +18,8 @@ jobs:
 
     env:
       EMBEDDING_PROVIDER: local
+      LLM_PROVIDER: local
+      EVAL_MODE: retrieval
       API_URL: http://localhost:8000
 
     defaults:
