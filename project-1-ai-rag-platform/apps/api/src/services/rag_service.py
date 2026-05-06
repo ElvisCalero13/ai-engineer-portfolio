@@ -49,6 +49,7 @@ class RagService:
             }
 
         chunks = self.chunk_text(text)
+        self.vector_store.delete_by_filename(filename)
         points = []
 
         for index, chunk in enumerate(chunks):
@@ -74,12 +75,12 @@ class RagService:
             "chunks": len(chunks),
         }
     
-    def answer_question(self, question: str) -> dict:
+    def answer_question(self, question: str, top_k: int = 5) -> dict:
         query_vector = self.embedding_service.embed_text(question)
 
         results = self.vector_store.search(
             query_vector=query_vector,
-            limit=5,
+            limit=top_k,
         )
 
         contexts = []

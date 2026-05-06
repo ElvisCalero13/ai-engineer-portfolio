@@ -1,5 +1,6 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
+from qdrant_client.models import Filter, FieldCondition, MatchValue
 
 from src.config import settings
 
@@ -42,4 +43,19 @@ class VectorStore:
             collection_name=self.collection_name,
             query_vector=query_vector,
             limit=limit,
+        )
+    
+    def delete_by_filename(self, filename: str):
+        self.ensure_collection()
+
+        self.client.delete(
+            collection_name=self.collection_name,
+            points_selector=Filter(
+                must=[
+                    FieldCondition(
+                        key="filename",
+                        match=MatchValue(value=filename),
+                    )
+                ]
+            ),
         )

@@ -13,3 +13,7 @@ class ChatResponse(BaseModel):
 class RetrieveRequest(BaseModel):
     question: str
     limit: int = 5
+
+class ChatRequest(BaseModel):
+    question: str
+    top_k: int = 5
