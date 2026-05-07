@@ -7,7 +7,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir torch==2.3.1+cpu --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY src ./src
+COPY . .
+
+RUN pip install -e .
 
 EXPOSE 8000
 

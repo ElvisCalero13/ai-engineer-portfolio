@@ -30,6 +30,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Build API
+        run: docker compose build api
+
       - name: Start local stack
         run: docker compose up -d --build
 

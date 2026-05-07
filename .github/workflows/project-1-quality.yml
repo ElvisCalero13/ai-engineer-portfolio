@@ -1,0 +1,50 @@
+name: project-1-quality
+
+on:
+  pull_request:
+    paths:
+      - "project-1-ai-rag-platform/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "project-1-ai-rag-platform/**"
+  workflow_dispatch:
+
+jobs:
+  quality:
+    name: API quality checks
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: project-1-ai-rag-platform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build API
+        run: docker compose build api
+
+      - name: Start stack
+        run: docker compose up -d
+
+      - name: Wait for API
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8000/health; then
+              echo "API is ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          docker compose logs
+          exit 1
+
+      - name: Run API tests
+        run: docker compose exec -T api pytest tests
+
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v
